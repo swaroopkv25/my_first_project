@@ -1,0 +1,5 @@
+intents:
+  - greet
+  - ask_reservation
+  - inform_reservation
+  - cancel_reservation

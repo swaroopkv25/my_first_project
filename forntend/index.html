@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        /* Style for the chat container */
+        .chat-container {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 20px auto;
+            max-width: 400px;
+            background-color: #f9f9f9;
+        }
+        
+        /* Style for the message input */
+        .message-input {
+            width: 90%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        /* Style for the send button */
+        .send-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        /* Style for the message display area */
+        .message-display {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            height: 200px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="message-display" id="messageDisplay"></div>
+        <input type="text" class="message-input" id="userInput" placeholder="Type your message...">
+        <button class="send-button" onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        // Function to send message to Rasa server
+        async function sendMessage() {
+            var userInput = document.getElementById("userInput").value;
+            if (userInput.trim() === "") {
+                alert("Please enter a message.");
+                return;
+            }
+            
+            // Display user message
+            displayMessage("You: " + userInput);
+
+            // Send user message to Rasa server
+            const response = await fetch('http://localhost:5005/webhooks/rest/webhook', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: userInput })
+            });
+
+            // Parse and display Rasa server response
+            const responseData = await response.json();
+
+   console.log("Response from api", responseData);
+
+            responseData.forEach(response => {
+                displayMessage("Bot: " + response.text);
+            });
+
+            // Reset input field
+            document.getElementById("userInput").value = "";
+        }
+
+
+   sendMessage();
+
+        // Function to display message in the chat window
+        function displayMessage(message) {
+            var messageDisplay = document.getElementById("messageDisplay");
+            var p = document.createElement("p");
+            p.textContent = message;
+            messageDisplay.appendChild(p);
+            messageDisplay.scrollTop = messageDisplay.scrollHeight; // Auto-scroll to bottom
+        }
+    </script>
+</body>
+</html>
